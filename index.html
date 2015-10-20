@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<title>3D Touch Canvas</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+canvas{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+footer{
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+footer a{
+  color: blue;
+  padding: 5px;
+  font-family: sans-serif;
+  font-size: 12px;
+}
+</style>
+<canvas id="c"></canvas>
+<footer>
+  <a href="https://github.com/cheeaun/3d-touch-canvas">3D Touch Canvas (?)</a>
+</footer>
+<script>
+function distanceBetween(point1, point2){
+  return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
+}
+function angleBetween(point1, point2){
+  return Math.atan2(point2.x - point1.x, point2.y - point1.y);
+}
+
+var el = document.getElementById('c');
+var ctx = el.getContext('2d');
+
+var scaleFactor = window.devicePixelRatio || 1;
+if (scaleFactor > 1){
+  el.width = el.offsetWidth * scaleFactor;
+  el.height = el.offsetHeight * scaleFactor;
+  ctx.scale(scaleFactor, scaleFactor);
+}
+
+ctx.lineJoin = ctx.lineCap = 'round';
+
+var isDrawing, lastPoint;
+
+el.ontouchstart = function(e){
+  e.preventDefault();
+  isDrawing = true;
+  lastPoint = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+};
+
+var rectSize = 60;
+el.ontouchmove = function(e){
+  if (!isDrawing) return;
+
+  var currentPoint = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  var dist = distanceBetween(lastPoint, currentPoint);
+  var angle = angleBetween(lastPoint, currentPoint);
+  var force = e.touches[0].force;
+
+  for (var i = 0; i < dist; i++){
+    var x = lastPoint.x + (Math.sin(angle) * i);
+    var y = lastPoint.y + (Math.cos(angle) * i);
+
+    var radgrad = ctx.createRadialGradient(x,y,0,x,y,rectSize/3*(force+0.2));
+
+    radgrad.addColorStop(0, '#000');
+    radgrad.addColorStop(0.3, 'rgba(0,0,0,0.5)');
+    radgrad.addColorStop(1, 'rgba(0,0,0,0)');
+
+    ctx.fillStyle = radgrad;
+    ctx.fillRect(x-rectSize/2, y-rectSize/2, rectSize, rectSize);
+  }
+
+  lastPoint = currentPoint;
+};
+
+el.ontouchend = function(){
+  isDrawing = false;
+};
+
+el.ongesturestart = function(){
+  ctx.clearRect(0, 0, el.width, el.height);
+}
+</script>
