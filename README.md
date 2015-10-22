@@ -11,6 +11,8 @@ Here's how it looks like, with a sketch:
 
 <img src="screenshot.png" width="375" height="667" alt="Screenshot">
 
+And here's a nice demo video: https://twitter.com/cheeaun/status/656631323923091456/video/1
+
 Instructions
 ---
 
